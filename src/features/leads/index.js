@@ -37,6 +37,8 @@ const TopSideButtons = () => {
 
 function Leads() {
   const { leads } = useSelector((state) => state.lead);
+  console.log(leads);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
