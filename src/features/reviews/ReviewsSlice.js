@@ -3,10 +3,11 @@ import axios from "axios";
 
 export const getReviewsContent = createAsyncThunk(
   "Reviews/fetchContent", // Updated action type
-  async () => {
+  async ({ page, pageSize }) => {
     try {
       const response = await axios.get(
-        "http://13.53.73.237:5000/admin/reviews",
+        `http://13.53.73.237:5000/admin/reviews?page=${page}&pageSize=${pageSize}`,
+
         {}
       );
       return response.data; // Return the fetched data
@@ -41,6 +42,8 @@ export const ReviewsSlice = createSlice({
     },
     [getReviewsContent.fulfilled]: (state, action) => {
       state.reviews = action.payload.data;
+      state.totalReviews = action.payload.total;
+
       state.isLoading = false;
     },
     [getReviewsContent.rejected]: (state) => {

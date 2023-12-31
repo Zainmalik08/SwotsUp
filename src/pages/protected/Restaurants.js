@@ -9,7 +9,7 @@ function InternalPage() {
 
   useEffect(() => {
     dispatch(setPageTitle({ title: "Restaurants" }));
-  }, []);
+  }, [dispatch]);
 
   return <Restaurants />;
 }

@@ -8,8 +8,8 @@ function InternalPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setPageTitle({ title: "Restaurants" }));
-  }, []);
+    dispatch(setPageTitle({ title: "Users" }));
+  }, [dispatch]);
 
   return <Users />;
 }

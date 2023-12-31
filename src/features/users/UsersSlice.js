@@ -2,17 +2,17 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const getUsersContent = createAsyncThunk(
-  "restaurants/fetchContent", // Updated action type
-  async () => {
+  "users/fetchContent",
+  async ({ page, pageSize }) => {
     try {
       const response = await axios.get(
-        "http://13.53.73.237:5000/admin/restaurants?page=2&pageSize=5",
-        {}
+        `http://13.53.73.237:5000/admin/users?page=${page}&pageSize=${pageSize}`
       );
-      return response.data; // Return the fetched data
+      // console.log(response.data); // Move this line here
+      return response.data;
     } catch (error) {
       console.error("Error fetching restaurant content:", error);
-      throw error; // Rethrow the error to be caught by the Redux state
+      throw error;
     }
   }
 );
@@ -41,6 +41,7 @@ export const UsersSlice = createSlice({
     },
     [getUsersContent.fulfilled]: (state, action) => {
       state.users = action.payload.data;
+      state.totalUsers = action.payload.total;
       state.isLoading = false;
     },
     [getUsersContent.rejected]: (state) => {

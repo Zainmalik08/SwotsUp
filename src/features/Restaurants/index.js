@@ -1,48 +1,48 @@
-import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TitleCard from "../../components/Cards/TitleCard";
 import ReactPaginate from "react-paginate";
 import { openModal } from "../common/modalSlice";
 import "./style.css";
-import { deleteLead, getRestaurantsContent } from "./RestaurantsSlice";
+import { getRestaurantsContent } from "./RestaurantsSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { showNotification } from "../common/headerSlice";
-import SearchBar from "../../components/Input/SearchBar";
+// import SearchBar from "../../components/Input/SearchBar";
 
-const TopSideButtons = ({ applySearch }) => {
-  const [searchText, setSearchText] = useState("");
+// const TopSideButtons = ({ applySearch }) => {
+//   const [searchText, setSearchText] = useState("");
 
-  const removeAppliedFilter = () => {
-    setSearchText("");
-  };
+//   const removeAppliedFilter = () => {
+//     setSearchText("");
+//   };
 
-  useEffect(() => {
-    if (searchText == "") {
-      removeAppliedFilter();
-    } else {
-      applySearch(searchText);
-    }
-  }, [searchText]);
+//   useEffect(() => {
+//     if (searchText === "") {
+//       removeAppliedFilter();
+//     } else {
+//       applySearch(searchText);
+//     }
+//   }, [searchText]);
 
-  return (
-    <div className="inline-block float-right">
-      <SearchBar
-        searchText={searchText}
-        styleClass="mr-4"
-        setSearchText={setSearchText}
-      />
-    </div>
-  );
-};
+//   return (
+//     <div className="inline-block float-right">
+//       <SearchBar
+//         searchText={searchText}
+//         styleClass="mr-4"
+//         setSearchText={setSearchText}
+//       />
+//     </div>
+//   );
+// };
 
 function Restaurants() {
   // const { leads } = useSelector((state) => state.lead);
-  const { restaurants } = useSelector((state) => state.restaurant);
+  const { restaurants, totalRestaurants } = useSelector(
+    (state) => state.restaurant
+  );
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 
@@ -50,28 +50,15 @@ function Restaurants() {
     setCurrentPage(selected);
   };
 
-  const startIndex = currentPage * itemsPerPage;
-  const paginatedRestaurants = restaurants.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getRestaurantsContent());
-  }, []);
-
-  // const getDummyStatus = (index) => {
-  //   if (index % 5 === 0) return <div className="badge">Not Interested</div>;
-  //   else if (index % 5 === 1)
-  //     return <div className="badge badge-primary">In Progress</div>;
-  //   else if (index % 5 === 2)
-  //     return <div className="badge badge-secondary">Sold</div>;
-  //   else if (index % 5 === 3)
-  //     return <div className="badge badge-accent">Need Followup</div>;
-  //   else return <div className="badge badge-ghost">Open</div>;
-  // };
+    // Fetch data based on the current page
+    dispatch(
+      getRestaurantsContent({ page: currentPage + 1, pageSize: itemsPerPage })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
 
   const deleteCurrentLead = (index) => {
     dispatch(
@@ -87,25 +74,12 @@ function Restaurants() {
     );
   };
 
-  const [trans, setTrans] = useState(paginatedRestaurants);
-
-  // Search according to name
-  const applySearch = (value) => {
-    let filteredTransactions = paginatedRestaurants.filter((t) => {
-      return (
-        t.email.toLowerCase().includes(value.toLowerCase()) ||
-        t.email.toLowerCase().includes(value.toLowerCase())
-      );
-    });
-    setTrans(filteredTransactions);
-  };
-
   return (
     <>
       <TitleCard
         title="Restaurants"
         topMargin="mt-2"
-        TopSideButtons={<TopSideButtons applySearch={applySearch} />}
+        // TopSideButtons={<TopSideButtons applySearch={applySearch} />}
       >
         {/* Leads List in table format loaded from slice after api call */}
         <div className="overflow-x-auto w-full">
@@ -122,7 +96,7 @@ function Restaurants() {
               </tr>
             </thead>
             <tbody>
-              {paginatedRestaurants.map((restaurant, index) => {
+              {restaurants.map((restaurant, index) => {
                 return (
                   <tr key={index}>
                     <td>
@@ -141,12 +115,7 @@ function Restaurants() {
                       </div>
                     </td>
                     <td>{restaurant.createdBy}</td>
-                    <td>
-                      {/* {moment(new Date())
-                        .add(-5 * (index + 2), "days")
-                        .format("DD MMM YY")} */}
-                      {restaurant.rating}
-                    </td>
+                    <td>{restaurant.rating}</td>
                     <td>{restaurant.address}</td>
                     <td>{restaurant.city}</td>
                     <td>
@@ -165,7 +134,7 @@ function Restaurants() {
         </div>
         <div style={{ float: "right", marginTop: "32px" }}>
           <ReactPaginate
-            pageCount={Math.ceil(restaurants.length / itemsPerPage)}
+            pageCount={Math.ceil(totalRestaurants / itemsPerPage)}
             pageRangeDisplayed={3}
             marginPagesDisplayed={1}
             onPageChange={handlePageChange}

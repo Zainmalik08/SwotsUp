@@ -31,3 +31,21 @@
     }
   }
 }
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px
+}
+
+.images img {
+  border-radius: 12px;
+}
+
+.button{
+  /* position: absolute; */
+  /* float: right; */
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom:12px;
+}

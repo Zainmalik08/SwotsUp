@@ -3,10 +3,10 @@ import axios from "axios";
 
 export const getRestaurantsContent = createAsyncThunk(
   "restaurants/fetchContent", // Updated action type
-  async () => {
+  async ({ page, pageSize }) => {
     try {
       const response = await axios.get(
-        "http://13.53.73.237:5000/admin/restaurants?page=2&pageSize=5",
+        `http://13.53.73.237:5000/admin/restaurants?page=${page}&pageSize=${pageSize}`,
         {}
       );
       return response.data; // Return the fetched data
@@ -41,6 +41,7 @@ export const restaurantsSlice = createSlice({
     },
     [getRestaurantsContent.fulfilled]: (state, action) => {
       state.restaurants = action.payload.data;
+      state.totalRestaurants = action.payload.total;
       state.isLoading = false;
     },
     [getRestaurantsContent.rejected]: (state) => {

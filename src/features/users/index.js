@@ -5,41 +5,15 @@ import TitleCard from "../../components/Cards/TitleCard";
 import ReactPaginate from "react-paginate";
 import { openModal } from "../common/modalSlice";
 import "./style.css";
-import { deleteLead, getUsersContent } from "./UsersSlice";
+import { getUsersContent } from "./UsersSlice";
 import {
   CONFIRMATION_MODAL_CLOSE_TYPES,
   MODAL_BODY_TYPES,
 } from "../../utils/globalConstantUtil";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
-import { showNotification } from "../common/headerSlice";
-
-// const TopSideButtons = () => {
-//   const dispatch = useDispatch();
-
-//   const openAddNewLeadModal = () => {
-//     dispatch(
-//       openModal({
-//         title: "Add New Lead",
-//         bodyType: MODAL_BODY_TYPES.LEAD_ADD_NEW,
-//       })
-//     );
-//   };
-
-//   return (
-//     <div className="inline-block float-right">
-//       <button
-//         className="btn px-6 btn-sm normal-case btn-primary"
-//         onClick={() => openAddNewLeadModal()}
-//       >
-//         Add New
-//       </button>
-//     </div>
-//   );
-// };
 
 function Users() {
-  // const { leads } = useSelector((state) => state.lead);
-  const { restaurants } = useSelector((state) => state.restaurant);
+  const { users, totalUsers } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 
@@ -47,29 +21,14 @@ function Users() {
     setCurrentPage(selected);
   };
 
-  const startIndex = currentPage * itemsPerPage;
-  const paginatedRestaurants = restaurants.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getUsersContent());
-  }, []);
-
-  // const getDummyStatus = (index) => {
-  //   if (index % 5 === 0) return <div className="badge">Not Interested</div>;
-  //   else if (index % 5 === 1)
-  //     return <div className="badge badge-primary">In Progress</div>;
-  //   else if (index % 5 === 2)
-  //     return <div className="badge badge-secondary">Sold</div>;
-  //   else if (index % 5 === 3)
-  //     return <div className="badge badge-accent">Need Followup</div>;
-  //   else return <div className="badge badge-ghost">Open</div>;
-  // };
-
+    // Fetch data based on the current page
+    dispatch(
+      getUsersContent({ page: currentPage + 1, pageSize: itemsPerPage })
+    );
+  }, [currentPage, dispatch]);
   const deleteCurrentLead = (index) => {
     dispatch(
       openModal({
@@ -86,53 +45,31 @@ function Users() {
 
   return (
     <>
-      <TitleCard
-        title="Users"
-        topMargin="mt-2"
-        // TopSideButtons={<TopSideButtons />}
-      >
-        {/* Leads List in table format loaded from slice after api call */}
+      <TitleCard title="Users" topMargin="mt-2">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Created By</th>
-                <th>Rating</th>
-                <th>Address</th>
-                <th>City</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Created At</th>
                 <th>Actions</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
-              {paginatedRestaurants.map((restaurant, index) => {
+              {users.map((user, index) => {
                 return (
                   <tr key={index}>
                     <td>
-                      <div className="flex items-center space-x-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle w-12 h-12">
-                            <img src={restaurant?.image} alt="Avatar" />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold">{restaurant?.name}</div>
-                          <div className="text-sm opacity-50">
-                            {restaurant.name}
-                          </div>
-                        </div>
+                      <div className="avatar"></div>
+                      <div>
+                        <div className="font-bold">{user.fullName}</div>
                       </div>
                     </td>
-                    <td>{restaurant.createdBy}</td>
-                    <td>
-                      {/* {moment(new Date())
-                        .add(-5 * (index + 2), "days")
-                        .format("DD MMM YY")} */}
-                      {restaurant.rating}
-                    </td>
-                    <td>{restaurant.address}</td>
-                    <td>{restaurant.city}</td>
+                    <td>{user.phoneNumber}</td>
+                    <td>{user.email}</td>
+                    <td>{moment(user.createdAt).format("DD MMM YY")}</td>
                     <td>
                       <button
                         className="btn btn-square btn-ghost"
@@ -149,7 +86,7 @@ function Users() {
         </div>
         <div style={{ float: "right", marginTop: "32px" }}>
           <ReactPaginate
-            pageCount={Math.ceil(restaurants.length / itemsPerPage)}
+            pageCount={Math.ceil(totalUsers / itemsPerPage)}
             pageRangeDisplayed={3}
             marginPagesDisplayed={1}
             onPageChange={handlePageChange}
